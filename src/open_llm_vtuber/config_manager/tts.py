@@ -596,6 +596,7 @@ class ElevenLabsTTSConfig(I18nMixin):
     similarity_boost: float = Field(0.5, alias="similarity_boost")
     style: float = Field(0.0, alias="style")
     use_speaker_boost: bool = Field(True, alias="use_speaker_boost")
+    speed: float = Field(1.0, alias="speed")
 
     DESCRIPTIONS: ClassVar[Dict[str, Description]] = {
         "api_key": Description(
@@ -626,6 +627,10 @@ class ElevenLabsTTSConfig(I18nMixin):
         "use_speaker_boost": Description(
             en="Enable speaker boost for better quality",
             zh="启用说话人增强以获得更好的质量",
+        ),
+        "speed": Description(
+            en="Voice speed (1.0 = normal, ~0.7 to 1.2)",
+            zh="语音速度（1.0 为正常速度，约 0.7 到 1.2）",
         ),
     }
 

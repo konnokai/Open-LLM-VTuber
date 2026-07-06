@@ -442,6 +442,7 @@ character_config:
       similarity_boost: 0.5 # Voice similarity boost (0.0 to 1.0)
       style: 0.0 # Voice style exaggeration (0.0 to 1.0)
       use_speaker_boost: true # Enable speaker boost for better quality
+      speed: 1.0 # Voice speed (1.0 = normal, ~0.7 to 1.2)
     
     cartesia_tts:
       api_key: ''
