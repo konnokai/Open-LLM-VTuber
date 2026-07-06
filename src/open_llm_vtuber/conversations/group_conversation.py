@@ -129,7 +129,7 @@ async def process_group_conversation(
                     metadata=current_metadata,
                 )
             except Exception as e:
-                logger.error(f"Error in group member turn: {e}")
+                logger.exception(f"Error in group member turn: {type(e).__name__}: {e}")
                 await handle_member_error(
                     broadcast_func, group_members, f"Error in conversation: {str(e)}"
                 )
@@ -140,7 +140,7 @@ async def process_group_conversation(
         )
         raise
     except Exception as e:
-        logger.error(f"Error in group conversation chain: {e}")
+        logger.exception(f"Error in group conversation chain: {type(e).__name__}: {e}")
         await handle_member_error(
             broadcast_func, group_members, f"Fatal error in conversation: {str(e)}"
         )

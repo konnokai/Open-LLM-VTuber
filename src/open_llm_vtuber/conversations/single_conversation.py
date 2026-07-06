@@ -165,10 +165,28 @@ async def process_single_conversation(
         logger.info(f"🤡👍 Conversation {session_emoji} cancelled because interrupted.")
         raise
     except Exception as e:
-        logger.error(f"Error in conversation chain: {e}")
-        await websocket_send(
-            json.dumps({"type": "error", "message": f"Conversation error: {str(e)}"})
-        )
+        # logger.exception keeps type + traceback; str(e) alone can be empty
+        # (e.g. WebSocketDisconnect, asyncio.TimeoutError)
+        logger.exception(f"Error in conversation chain: {type(e).__name__}: {e}")
+        try:
+            await websocket_send(
+                json.dumps(
+                    {
+                        "type": "error",
+                        "message": f"Conversation error: {type(e).__name__}: {e}",
+                    }
+                )
+            )
+            # Unblock the frontend: it stays in "thinking/speaking" until it
+            # receives conversation-chain-end, which the success path sends
+            # in finalize_conversation_turn but the error path never did.
+            await websocket_send(
+                json.dumps({"type": "control", "text": "conversation-chain-end"})
+            )
+        except Exception:
+            logger.warning(
+                "Failed to notify client of conversation error (websocket closed?)"
+            )
         raise
     finally:
         cleanup_conversation(tts_manager, session_emoji)

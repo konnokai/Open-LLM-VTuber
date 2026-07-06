@@ -110,6 +110,19 @@ class WebSocketHandler:
         Raises:
             Exception: If initialization fails
         """
+        # uvicorn's websockets protocol asserts when two tasks send() on the
+        # same connection concurrently (drain race in _drain_helper), which
+        # happens when the TTS sender task and the conversation flow both
+        # write. Serialize all sends on this connection with one lock.
+        send_lock = asyncio.Lock()
+        raw_send_text = websocket.send_text
+
+        async def locked_send_text(data: str) -> None:
+            async with send_lock:
+                await raw_send_text(data)
+
+        websocket.send_text = locked_send_text
+
         try:
             session_service_context = await self._init_service_context(
                 websocket.send_text, client_uid
